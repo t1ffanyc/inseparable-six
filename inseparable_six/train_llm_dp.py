@@ -3,6 +3,7 @@ from torch.utils.data import DataLoader
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from torch.optim import AdamW
 from tqdm import tqdm
+import math
 
 # -------------------------
 # 1. Configuration
@@ -53,6 +54,9 @@ optimizer = AdamW(model.parameters(), lr=lr)
 for epoch in range(num_epochs):
     model.train()
     loop = tqdm(data_loader, desc=f"Epoch {epoch+1}")
+
+    total_loss = 0
+    num_batches = 0
     
     for batch in loop:
         input_ids, attention_mask = [x.to(device) for x in batch]
@@ -63,6 +67,7 @@ for epoch in range(num_epochs):
         loss.backward()
         
         # -------- Layer-wise DP: Clip + Add noise per parameter --------
+        grad_norms = {}
         for name, param in model.named_parameters():
             if param.grad is not None:
                 clip_value = layer_clipping_norms.get(name, default_clip)
@@ -70,6 +75,9 @@ for epoch in range(num_epochs):
                 
                 # Clip gradient
                 grad_norm = param.grad.norm()
+                grad_norms[name] = grad_norm
+
+                # Clip gradient
                 param.grad.data *= min(1.0, clip_value / (grad_norm + 1e-6))
                 
                 # Add Gaussian noise
@@ -77,8 +85,22 @@ for epoch in range(num_epochs):
                 param.grad.data += noise
         
         optimizer.step()
+        total_loss += loss.item()
+        num_batches += 1
         loop.set_postfix(loss=loss.item())
 
+    avg_loss = total_loss / num_batches
+    perplexity = math.exp(avg_loss)
+
     print(f"Epoch {epoch+1} done")
+    print(f"Avg loss: {avg_loss:.4f}, Perplexity: {perplexity:.2f}")
+
+    print("Sample layer gradient norms (after clipping + noise):")
+    for name, gnorm in list(grad_norms.items())[:5]:  # print first 5 layers
+        print(f"{name}: {gnorm:.4f}")
+    
+    # Rough privacy estimate (informal)
+    total_noise = sum([torch.numel(param) * default_noise * default_clip for name, param in model.named_parameters() if param.grad is not None])
+    print(f"Approximate total Gaussian noise added: {total_noise:.2e}")
 
 print("Layer-wise DP fine-tuning complete!")
