@@ -1,12 +1,17 @@
-# Install local opacus fork first (before other packages that might pull opacus from PyPI)
--e ..
 # Core dependencies
 torch>=2.2.0
 numpy>=1.15,<2
 scipy>=1.2
 opt-einsum>=3.3.0
 tqdm>=4.40
+
 # ML libraries
 datasets
 transformers
 peft
+
+# Differential Privacy
+opacus
+
+# Visualization
+matplotlib>=3.5.0
