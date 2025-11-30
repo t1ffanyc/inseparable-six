@@ -1,0 +1,42 @@
+{
+    "name": "custom_experiment",
+    "output_dir": "./experiment_results",
+
+    "model_name": "gpt2",
+
+    "dataset_name": "imdb",
+    "max_train_samples": 1000,
+    "max_test_samples": 500,
+    "max_length": 256,
+
+    "batch_size": 16,
+    "epochs": 3,
+    "learning_rate": 5e-4,
+    "weight_decay": 0.01,
+    "seed": 42,
+
+    "lora_rank": 8,
+    "lora_alpha": 16,
+    "lora_dropout": 0.1,
+    "lora_target_modules": ["c_attn", "c_proj"],
+
+    "target_epsilon": 1.0,
+    "target_delta": null,
+    "max_grad_norm": 1.0,
+
+    "gradient_estimation_samples": 100,
+    "use_public_data_for_estimation": false,
+
+    "run_no_dp": true,
+    "run_strategies": [
+        "uniform",
+        "depth_linear_increasing",
+        "depth_linear_decreasing",
+        "depth_gaussian_peak",
+        "depth_u_shaped",
+        "gradient_norm",
+        "cube_root_gradient_norm"
+    ],
+
+    "device": "cuda"
+}

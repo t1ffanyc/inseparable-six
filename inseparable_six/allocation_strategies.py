@@ -579,6 +579,81 @@ class DepthBasedStrategy(AllocationStrategy):
         return raw_allocations
 
 
+class CubeRootGradientNormStrategy(GradientNormStrategy):
+    """
+    Signal-proportional allocation based on cube root of gradient magnitudes.
+    
+    Similar to GradientNormStrategy, but applies cube root transformation to
+    gradient norms before normalization. This reduces the influence of outlier
+    layers with very large gradients, leading to a more balanced allocation.
+    
+    The cube root transformation compresses the range of gradient norms,
+    giving smaller-gradient layers relatively more budget compared to
+    the standard gradient norm strategy.
+    """
+    
+    @property
+    def name(self) -> str:
+        source = "public" if self.data_source == PrivacyDataSource.PUBLIC else "private"
+        return f"cube_root_gradient_norm_{source}"
+    
+    def compute_allocation(
+        self,
+        model: nn.Module,
+        global_clipping_bound: float,
+        data_loader: Optional[DataLoader] = None,
+        device: str = "cuda"
+    ) -> Dict[str, float]:
+        
+        # Select data source for estimation
+        if self.data_source == PrivacyDataSource.PUBLIC:
+            estimation_loader = self.public_data_loader
+            used_public_data = True
+            privacy_cost = 0.0
+        else:
+            if data_loader is None:
+                raise ValueError(
+                    "data_loader required for gradient estimation with private data"
+                )
+            estimation_loader = data_loader
+            used_public_data = False
+            privacy_cost = self.estimation_privacy_epsilon
+        
+        param_groups = self.get_parameter_groups(model)
+        
+        # Compute gradient norms
+        gradient_norms = self._estimate_gradient_norms(
+            model, param_groups, estimation_loader, device
+        )
+        
+        # Apply cube root transformation
+        cube_root_norms = {
+            k: np.cbrt(v) for k, v in gradient_norms.items()
+        }
+        
+        # Normalize and convert to clipping bounds
+        normalized = self._normalize_allocations(cube_root_norms)
+        clipping_bounds = self._to_clipping_bounds(normalized, global_clipping_bound)
+        
+        # Store metrics
+        is_valid, constraint_value = self._verify_constraint(
+            clipping_bounds, global_clipping_bound
+        )
+        self._metrics = AllocationMetrics(
+            strategy_name=self.name,
+            layer_clipping_bounds=clipping_bounds,
+            allocation_ratios=normalized,
+            global_clipping_bound=global_clipping_bound,
+            constraint_value=constraint_value,
+            estimated_gradient_norms=gradient_norms,
+            estimation_samples=self.num_estimation_samples,
+            privacy_cost_epsilon=privacy_cost,
+            used_public_data=used_public_data,
+        )
+        
+        return clipping_bounds
+
+
 class InverseDepthStrategy(DepthBasedStrategy):
     """
     Inverse of depth-based strategy for comparison experiments.
@@ -696,6 +771,7 @@ class CustomAllocationStrategy(AllocationStrategy):
 STRATEGY_REGISTRY = {
     "uniform": UniformStrategy,
     "gradient_norm": GradientNormStrategy,
+    "cube_root_gradient_norm": CubeRootGradientNormStrategy,
     "depth_uniform": lambda: DepthBasedStrategy(pattern="uniform"),
     "depth_linear_increasing": lambda: DepthBasedStrategy(pattern="linear_increasing"),
     "depth_linear_decreasing": lambda: DepthBasedStrategy(pattern="linear_decreasing"),

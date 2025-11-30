@@ -70,6 +70,7 @@ from inseparable_six.allocation_strategies import (
     AllocationStrategy,
     UniformStrategy,
     GradientNormStrategy,
+    CubeRootGradientNormStrategy,
     DepthBasedStrategy,
     get_strategy,
     list_strategies,
@@ -115,7 +116,7 @@ class ExperimentSuiteConfig:
     lora_target_modules: List[str] = field(default_factory=lambda: ["c_attn", "c_proj"])
     
     # Privacy settings
-    target_epsilon: float = 4.0
+    target_epsilon: float = 1.0
     target_delta: Optional[float] = None  # 1/n if None
     max_grad_norm: float = 1.0
     
@@ -147,12 +148,12 @@ class ExperimentSuiteConfig:
         """Quick test configuration for debugging"""
         return cls(
             name="quick_test",
-            max_train_samples=50,
-            max_test_samples=25,
+            max_train_samples=30,
+            max_test_samples=15,
             epochs=1,
             batch_size=8,
-            gradient_estimation_samples=25,
-            run_strategies=["uniform", "depth_linear_increasing"],
+            gradient_estimation_samples=15,
+            run_strategies=["uniform", "gradient_norm"],
         )
     
     @classmethod
@@ -169,6 +170,7 @@ class ExperimentSuiteConfig:
                 "depth_gaussian_peak",
                 "depth_u_shaped",
                 "gradient_norm",
+                "cube_root_gradient_norm",
             ],
         )
 

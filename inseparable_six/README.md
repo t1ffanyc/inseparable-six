@@ -84,6 +84,8 @@ This runs experiments comparing:
 1. Non-DP fine-tuning (baseline utility)
 2. DP fine-tuning with various allocation strategies (uniform, depth-based, gradient-norm)
 
+An example custom config is provided, and can be called with `python run_experiments.py --config example_config.json`.
+
 ### Using the Python API
 
 ```python
