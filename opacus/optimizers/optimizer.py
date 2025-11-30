@@ -21,8 +21,13 @@ from typing import Callable, List, Optional, Union
 import torch
 from opacus.optimizers.utils import params
 from torch import nn
-from torch.distributed.tensor import DTensor
 from torch.optim import Optimizer
+
+# DTensor was introduced in PyTorch 2.4
+try:
+    from torch.distributed.tensor import DTensor
+except ImportError:
+    DTensor = None
 
 
 logger = logging.getLogger(__name__)
@@ -103,10 +108,10 @@ def _check_processed_flag(obj: Union[torch.Tensor, List[torch.Tensor]]):
 
 def _generate_noise(
     std: float,
-    reference: Union[torch.Tensor, DTensor],
+    reference: torch.Tensor,
     generator=None,
     secure_mode: bool = False,
-) -> Union[torch.Tensor, DTensor]:
+) -> torch.Tensor:
     """
     Generates noise according to a Gaussian distribution with mean 0
 

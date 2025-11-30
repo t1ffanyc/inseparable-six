@@ -33,9 +33,14 @@ from opacus.schedulers import _GradClipScheduler, _NoiseScheduler
 from opacus.utils.fast_gradient_clipping_utils import DPLossFastGradientClipping
 from opacus.validators.module_validator import ModuleValidator
 from torch import nn, optim
-from torch.distributed._composable.fsdp import FSDPModule
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.data import DataLoader
+
+# FSDPModule was introduced in PyTorch 2.4
+try:
+    from torch.distributed._composable.fsdp import FSDPModule
+except ImportError:
+    FSDPModule = None
 
 
 class PrivacyEngine:
@@ -389,7 +394,7 @@ class PrivacyEngine:
                     "Module parameters are different than optimizer Parameters"
                 )
 
-        distributed = isinstance(module, (DPDDP, DDP, FSDPModule))
+        distributed = isinstance(module, (DPDDP, DDP)) or (FSDPModule is not None and isinstance(module, FSDPModule))
 
         module = self._prepare_model(
             module,

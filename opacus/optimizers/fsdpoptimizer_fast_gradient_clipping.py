@@ -18,8 +18,15 @@ import logging
 from typing import Callable, Optional
 
 import torch
-from torch.distributed._tensor.experimental import implicit_replication
 from torch.optim import Optimizer
+
+# implicit_replication was introduced in PyTorch 2.4
+try:
+    from torch.distributed._tensor.experimental import implicit_replication
+    _HAS_IMPLICIT_REPLICATION = True
+except ImportError:
+    _HAS_IMPLICIT_REPLICATION = False
+    from contextlib import nullcontext as implicit_replication
 
 from .optimizer import _generate_noise
 from .optimizer_fast_gradient_clipping import DPOptimizerFastGradientClipping

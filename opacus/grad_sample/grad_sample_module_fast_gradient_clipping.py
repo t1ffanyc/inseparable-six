@@ -33,6 +33,12 @@ from opacus.utils.module_utils import (
     trainable_parameters,
 )
 
+# Handle DTensor compatibility for older PyTorch versions (< 2.3)
+try:
+    from torch.distributed.tensor import DTensor
+except (ImportError, AttributeError):
+    DTensor = None
+
 
 logger = logging.getLogger(__name__)
 logger.disabled = True
@@ -209,7 +215,7 @@ class GradSampleModuleFastGradientClipping(GradSampleModule):
             batch_first=batch_first,
         )
         activations = [
-            temp.to_local() if type(temp) is torch.distributed.tensor.DTensor else temp
+            temp.to_local() if DTensor is not None and type(temp) is DTensor else temp
             for temp in activations
         ]
 

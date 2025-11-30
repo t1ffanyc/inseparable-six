@@ -21,6 +21,7 @@ import warnings
 import torch
 from opacus.grad_sample.grad_sample_module_fast_gradient_clipping import (
     GradSampleModuleFastGradientClipping,
+    DTensor,  # Import from parent module for compatibility
 )
 
 
@@ -72,7 +73,7 @@ class GradSampleModuleFastGradientClippingTP(GradSampleModuleFastGradientClippin
         for module in self.iterate_submodules(self._module):
             for name, param in module.named_parameters():
                 if param.requires_grad:
-                    if type(param) is not torch.distributed.tensor.DTensor:
+                    if DTensor is None or type(param) is not DTensor:
                         param.merge_flag = False
                     elif type(module) is torch.nn.Embedding and param.placements[
                         0

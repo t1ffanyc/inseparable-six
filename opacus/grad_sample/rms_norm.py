@@ -23,10 +23,11 @@ from opacus.utils.tensor_utils import sum_over_all_but_batch_and_last_n
 
 from .utils import register_grad_sampler
 
+# nn.RMSNorm was added in PyTorch 2.4
+_HAS_RMS_NORM = hasattr(nn, "RMSNorm")
 
-@register_grad_sampler(nn.RMSNorm)
 def compute_rms_norm_grad_sample(
-    layer: nn.RMSNorm,
+    layer,
     activations: List[torch.Tensor],
     backprops: torch.Tensor,
 ) -> Dict[nn.Parameter, torch.Tensor]:
@@ -46,3 +47,7 @@ def compute_rms_norm_grad_sample(
             layer.weight.dim(),
         )
     return ret
+
+# Only register the grad sampler if nn.RMSNorm exists (PyTorch 2.4+)
+if _HAS_RMS_NORM:
+    compute_rms_norm_grad_sample = register_grad_sampler(nn.RMSNorm)(compute_rms_norm_grad_sample)
