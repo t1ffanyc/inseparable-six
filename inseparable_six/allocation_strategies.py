@@ -76,7 +76,7 @@ class AllocationStrategy(ABC):
     def get_parameter_groups(
         self, 
         model: nn.Module,
-        block_pattern: str = ".h."  # Default for GPT-2 style transformers
+        block_pattern: Optional[str] = None  # Auto-detect if None
     ) -> Dict[str, List[nn.Parameter]]:
         """
         Group trainable parameters by transformer block.
@@ -86,11 +86,18 @@ class AllocationStrategy(ABC):
         
         Args:
             model: The model to analyze
-            block_pattern: Pattern to identify transformer blocks (e.g., ".h." for GPT-2)
+            block_pattern: Pattern to identify transformer blocks. If None, auto-detects:
+                - ".h." for GPT-2 style
+                - ".layer." for BERT/DistilBERT/RoBERTa style
+                - ".layers." for some other models
             
         Returns:
             OrderedDict mapping group_name -> list of parameters
         """
+        # Auto-detect block pattern if not provided
+        if block_pattern is None:
+            block_pattern = self._detect_block_pattern(model)
+        
         param_groups = OrderedDict()
         
         for name, param in model.named_parameters():
@@ -105,6 +112,45 @@ class AllocationStrategy(ABC):
             param_groups[group_name].append(param)
         
         return param_groups
+    
+    def _detect_block_pattern(self, model: nn.Module) -> str:
+        """
+        Auto-detect the block pattern from model parameter names.
+        
+        Returns:
+            Detected block pattern string
+        """
+        # Get a sample of parameter names
+        param_names = [name for name, _ in model.named_parameters()]
+        sample_names = param_names[:20]  # Check first 20 params
+        
+        # Common patterns for different model architectures
+        patterns = [
+            ".layer.",    # BERT, DistilBERT, RoBERTa, ALBERT
+            ".h.",        # GPT-2, GPT-Neo
+            ".layers.",   # Some newer models, LLaMA
+            ".block.",    # T5, some others
+            ".encoder.layer.",  # BERT encoder specifically
+        ]
+        
+        # Count matches for each pattern
+        pattern_counts = {}
+        for pattern in patterns:
+            count = sum(1 for name in sample_names if pattern in name)
+            pattern_counts[pattern] = count
+        
+        # Return the pattern with most matches, or default to ".layer."
+        best_pattern = max(pattern_counts, key=pattern_counts.get)
+        if pattern_counts[best_pattern] == 0:
+            # No pattern matched, try to find any ".X." where X is a number pattern
+            for name in param_names:
+                import re
+                match = re.search(r'\.(\w+)\.\d+\.', name)
+                if match:
+                    return f".{match.group(1)}."
+            return ".layer."  # Final fallback
+        
+        return best_pattern
     
     def _extract_group_name(self, param_name: str, block_pattern: str) -> str:
         """

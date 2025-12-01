@@ -1,0 +1,187 @@
+{
+  "no_dp_lora": {
+    "experiment_type": "no_dp",
+    "strategy_name": "none",
+    "final_eval_accuracy": 85.4,
+    "final_train_accuracy": 84.2,
+    "final_epsilon": 0.0,
+    "total_time_seconds": 84.09499216079712,
+    "peak_memory_mb": 0.0,
+    "trainable_params": 667396,
+    "lora_enabled": true,
+    "training_curves": {
+      "epochs": [
+        0,
+        1
+      ],
+      "train_loss": [
+        0.8064175029285252,
+        0.41235041664913297
+      ],
+      "train_accuracy": [
+        67.6,
+        84.2
+      ],
+      "eval_accuracy": [
+        81.4,
+        85.4
+      ],
+      "epsilon": [
+        0.0,
+        0.0
+      ],
+      "epoch_time": [
+        40.92233967781067,
+        43.169127225875854
+      ]
+    }
+  },
+  "dp_uniform_lora": {
+    "experiment_type": "dp",
+    "strategy_name": "uniform",
+    "final_eval_accuracy": 25.4,
+    "final_train_accuracy": 48.627450980392155,
+    "final_epsilon": 2.012143489795271,
+    "total_time_seconds": 110.55089807510376,
+    "peak_memory_mb": 0.0,
+    "trainable_params": 667396,
+    "lora_enabled": true,
+    "training_curves": {
+      "epochs": [
+        0,
+        1
+      ],
+      "train_loss": [
+        1.3041162267327309,
+        1.2299424931406975
+      ],
+      "train_accuracy": [
+        46.84959349593496,
+        48.627450980392155
+      ],
+      "eval_accuracy": [
+        25.4,
+        25.4
+      ],
+      "epsilon": [
+        1.6302941546099545,
+        2.012143489795271
+      ],
+      "epoch_time": [
+        54.58275389671326,
+        54.768861293792725
+      ]
+    }
+  },
+  "dp_gradient_norm_lora": {
+    "experiment_type": "dp",
+    "strategy_name": "gradient_norm_private",
+    "final_eval_accuracy": 25.4,
+    "final_train_accuracy": 48.66204162537166,
+    "final_epsilon": 2.012143489795271,
+    "total_time_seconds": 110.6525571346283,
+    "peak_memory_mb": 0.0,
+    "trainable_params": 667396,
+    "lora_enabled": true,
+    "training_curves": {
+      "epochs": [
+        0,
+        1
+      ],
+      "train_loss": [
+        1.2834986336529255,
+        1.2590530067682266
+      ],
+      "train_accuracy": [
+        48.07121661721068,
+        48.66204162537166
+      ],
+      "eval_accuracy": [
+        25.4,
+        25.4
+      ],
+      "epsilon": [
+        1.6302941546099545,
+        2.012143489795271
+      ],
+      "epoch_time": [
+        52.3832311630249,
+        55.086382150650024
+      ]
+    }
+  },
+  "dp_cube_root_gradient_norm_lora": {
+    "experiment_type": "dp",
+    "strategy_name": "cube_root_gradient_norm_private",
+    "final_eval_accuracy": 25.4,
+    "final_train_accuracy": 47.674418604651166,
+    "final_epsilon": 2.012143489795271,
+    "total_time_seconds": 110.1391658782959,
+    "peak_memory_mb": 0.0,
+    "trainable_params": 667396,
+    "lora_enabled": true,
+    "training_curves": {
+      "epochs": [
+        0,
+        1
+      ],
+      "train_loss": [
+        1.2959990948438644,
+        1.2610371597111225
+      ],
+      "train_accuracy": [
+        46.24390243902439,
+        47.674418604651166
+      ],
+      "eval_accuracy": [
+        25.4,
+        25.4
+      ],
+      "epsilon": [
+        1.6302941546099545,
+        2.012143489795271
+      ],
+      "epoch_time": [
+        52.45492386817932,
+        52.94331908226013
+      ]
+    }
+  },
+  "dp_depth_linear_increasing_lora": {
+    "experiment_type": "dp",
+    "strategy_name": "depth_linear_increasing",
+    "final_eval_accuracy": 25.4,
+    "final_train_accuracy": 48.627450980392155,
+    "final_epsilon": 2.012143489795271,
+    "total_time_seconds": 98.82325077056885,
+    "peak_memory_mb": 0.0,
+    "trainable_params": 667396,
+    "lora_enabled": true,
+    "training_curves": {
+      "epochs": [
+        0,
+        1
+      ],
+      "train_loss": [
+        1.3041162267327309,
+        1.2299424931406975
+      ],
+      "train_accuracy": [
+        46.84959349593496,
+        48.627450980392155
+      ],
+      "eval_accuracy": [
+        25.4,
+        25.4
+      ],
+      "epsilon": [
+        1.6302941546099545,
+        2.012143489795271
+      ],
+      "epoch_time": [
+        49.90543007850647,
+        47.78405714035034
+      ]
+    }
+  }
+}
