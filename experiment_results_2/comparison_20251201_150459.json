@@ -1,0 +1,187 @@
+{
+  "no_dp_lora": {
+    "experiment_type": "no_dp",
+    "strategy_name": "none",
+    "final_eval_accuracy": 100.0,
+    "final_train_accuracy": 100.0,
+    "final_epsilon": 0.0,
+    "total_time_seconds": 91.69153022766113,
+    "peak_memory_mb": 0.0,
+    "trainable_params": 665858,
+    "lora_enabled": true,
+    "training_curves": {
+      "epochs": [
+        0,
+        1
+      ],
+      "train_loss": [
+        0.07206977520320379,
+        4.178443969493628e-06
+      ],
+      "train_accuracy": [
+        97.8,
+        100.0
+      ],
+      "eval_accuracy": [
+        100.0,
+        100.0
+      ],
+      "epsilon": [
+        0.0,
+        0.0
+      ],
+      "epoch_time": [
+        46.14036297798157,
+        45.54764103889465
+      ]
+    }
+  },
+  "dp_uniform_lora": {
+    "experiment_type": "dp",
+    "strategy_name": "uniform",
+    "final_eval_accuracy": 100.0,
+    "final_train_accuracy": 100.0,
+    "final_epsilon": 0.7055141037066553,
+    "total_time_seconds": 104.47178792953491,
+    "peak_memory_mb": 0.0,
+    "trainable_params": 665858,
+    "lora_enabled": true,
+    "training_curves": {
+      "epochs": [
+        0,
+        1
+      ],
+      "train_loss": [
+        0.3848442076705396,
+        0.07844815507996827
+      ],
+      "train_accuracy": [
+        97.85365853658537,
+        100.0
+      ],
+      "eval_accuracy": [
+        100.0,
+        100.0
+      ],
+      "epsilon": [
+        0.5344556426458805,
+        0.7055141037066553
+      ],
+      "epoch_time": [
+        49.78085803985596,
+        54.27356290817261
+      ]
+    }
+  },
+  "dp_gradient_norm_lora": {
+    "experiment_type": "dp",
+    "strategy_name": "gradient_norm_private",
+    "final_eval_accuracy": 100.0,
+    "final_train_accuracy": 100.0,
+    "final_epsilon": 0.7055141037066553,
+    "total_time_seconds": 116.6653938293457,
+    "peak_memory_mb": 0.0,
+    "trainable_params": 665858,
+    "lora_enabled": true,
+    "training_curves": {
+      "epochs": [
+        0,
+        1
+      ],
+      "train_loss": [
+        0.3820668077096343,
+        0.07838604552671313
+      ],
+      "train_accuracy": [
+        97.83464566929133,
+        100.0
+      ],
+      "eval_accuracy": [
+        100.0,
+        100.0
+      ],
+      "epsilon": [
+        0.5344556426458805,
+        0.7055141037066553
+      ],
+      "epoch_time": [
+        58.81901001930237,
+        54.924638986587524
+      ]
+    }
+  },
+  "dp_cube_root_gradient_norm_lora": {
+    "experiment_type": "dp",
+    "strategy_name": "cube_root_gradient_norm_private",
+    "final_eval_accuracy": 100.0,
+    "final_train_accuracy": 100.0,
+    "final_epsilon": 0.7055141037066553,
+    "total_time_seconds": 109.32318115234375,
+    "peak_memory_mb": 0.0,
+    "trainable_params": 665858,
+    "lora_enabled": true,
+    "training_curves": {
+      "epochs": [
+        0,
+        1
+      ],
+      "train_loss": [
+        0.3841112065128982,
+        0.08235307701397687
+      ],
+      "train_accuracy": [
+        96.93069306930693,
+        100.0
+      ],
+      "eval_accuracy": [
+        100.0,
+        100.0
+      ],
+      "epsilon": [
+        0.5344556426458805,
+        0.7055141037066553
+      ],
+      "epoch_time": [
+        51.447760820388794,
+        53.88843512535095
+      ]
+    }
+  },
+  "dp_depth_linear_increasing_lora": {
+    "experiment_type": "dp",
+    "strategy_name": "depth_linear_increasing",
+    "final_eval_accuracy": 100.0,
+    "final_train_accuracy": 100.0,
+    "final_epsilon": 0.7055141037066553,
+    "total_time_seconds": 108.57727694511414,
+    "peak_memory_mb": 0.0,
+    "trainable_params": 665858,
+    "lora_enabled": true,
+    "training_curves": {
+      "epochs": [
+        0,
+        1
+      ],
+      "train_loss": [
+        0.3848442076705396,
+        0.07844815507996827
+      ],
+      "train_accuracy": [
+        97.85365853658537,
+        100.0
+      ],
+      "eval_accuracy": [
+        100.0,
+        100.0
+      ],
+      "epsilon": [
+        0.5344556426458805,
+        0.7055141037066553
+      ],
+      "epoch_time": [
+        53.41047978401184,
+        54.6936149597168
+      ]
+    }
+  }
+}

@@ -182,14 +182,28 @@ class ExperimentSuiteConfig:
 def load_data(
     config: ExperimentSuiteConfig,
     tokenizer,
-) -> Tuple[DataLoader, DataLoader, int]:
-    """Load and prepare dataset"""
+) -> Tuple[DataLoader, DataLoader, int, int]:
+    """Load and prepare dataset
+    
+    Returns:
+        Tuple of (train_loader, test_loader, train_size, num_labels)
+    """
     print(f"\n[Loading {config.dataset_name} dataset...]")
     
     dataset = load_dataset(config.dataset_name)
     
     train_data = dataset["train"]
     test_data = dataset["test"]
+    
+    # Detect number of labels from dataset
+    # Try common label column names
+    label_col = "label" if "label" in train_data.features else "labels"
+    if hasattr(train_data.features[label_col], 'num_classes'):
+        num_labels = train_data.features[label_col].num_classes
+    else:
+        # Fallback: count unique labels
+        num_labels = len(set(train_data[label_col]))
+    print(f"  Number of labels: {num_labels}")
     
     # Limit samples if specified
     if config.max_train_samples:
@@ -228,7 +242,7 @@ def load_data(
     print(f"  Train samples: {len(train_tokenized)}")
     print(f"  Test samples: {len(test_tokenized)}")
     
-    return train_loader, test_loader, len(train_tokenized)
+    return train_loader, test_loader, len(train_tokenized), num_labels
 
 
 # =============================================================================
@@ -390,6 +404,7 @@ def run_no_dp_experiment(
     config: ExperimentSuiteConfig,
     train_loader: DataLoader,
     test_loader: DataLoader,
+    num_labels: int = 2,
 ) -> ExperimentResult:
     """Run non-DP fine-tuning experiment"""
     exp_name = "no_dp_lora"
@@ -403,7 +418,7 @@ def run_no_dp_experiment(
     reset_peak_memory_stats()
     
     # Load fresh model
-    model, _ = load_model(config)
+    model, _ = load_model(config, num_labels=num_labels)
     model = apply_lora(model, config)
     
     # Metrics
@@ -449,6 +464,7 @@ def run_dp_experiment(
     test_loader: DataLoader,
     train_size: int,
     strategy_name: str,
+    num_labels: int = 2,
 ) -> ExperimentResult:
     """Run DP fine-tuning experiment with specified allocation strategy"""
     exp_name = f"dp_{strategy_name}_lora"
@@ -462,7 +478,7 @@ def run_dp_experiment(
     reset_peak_memory_stats()
     
     # Load fresh model
-    model, _ = load_model(config)
+    model, _ = load_model(config, num_labels=num_labels)
     model = apply_lora(model, config)
     model = make_opacus_compatible(model)
     
@@ -567,13 +583,13 @@ def run_experiment_suite(config: ExperimentSuiteConfig) -> List[ExperimentResult
     # Load tokenizer once for data loading
     _, tokenizer = load_model(config)
     
-    # Load data
-    train_loader, test_loader, train_size = load_data(config, tokenizer)
+    # Load data (now returns num_labels too)
+    train_loader, test_loader, train_size, num_labels = load_data(config, tokenizer)
     
     # 1. Non-DP baseline (with LoRA for fair comparison)
     if config.run_no_dp:
         try:
-            result = run_no_dp_experiment(config, train_loader, test_loader)
+            result = run_no_dp_experiment(config, train_loader, test_loader, num_labels)
             results.append(result)
         except Exception as e:
             print(f"  ERROR in no_dp experiment: {e}")
@@ -582,7 +598,7 @@ def run_experiment_suite(config: ExperimentSuiteConfig) -> List[ExperimentResult
     for strategy_name in config.run_strategies:
         try:
             result = run_dp_experiment(
-                config, train_loader, test_loader, train_size, strategy_name
+                config, train_loader, test_loader, train_size, strategy_name, num_labels
             )
             results.append(result)
         except Exception as e:

@@ -786,8 +786,9 @@ def plot_allocation_comparison(
     Generate plots comparing allocation strategies across experiments.
     
     Creates plots for:
-    - Per-layer clipping bounds comparison
-    - Allocation ratios comparison
+    - Per-layer clipping bounds comparison (bar chart)
+    - Per-layer clipping bounds line chart (for trend visualization)
+    - Allocation ratios heatmap
     
     Args:
         results_list: List of experiment results with allocation metrics
@@ -827,8 +828,8 @@ def plot_allocation_comparison(
     sorted_layers = sorted(all_layers, key=sort_key)
     x = np.arange(len(sorted_layers))
     
-    # Plot clipping bounds comparison
-    fig, ax = plt.subplots(figsize=(12, 6))
+    # 1. Plot clipping bounds comparison (bar chart)
+    fig, ax = plt.subplots(figsize=(14, 6))
     
     width = 0.8 / len(results_with_alloc)
     
@@ -836,22 +837,207 @@ def plot_allocation_comparison(
         alloc = results.allocation_metrics
         bounds = [alloc.layer_clipping_bounds.get(l, 0) for l in sorted_layers]
         offset = (i - len(results_with_alloc)/2 + 0.5) * width
+        label = results.strategy_name or results.experiment_name
         ax.bar(x + offset, bounds, width, 
-               label=results.experiment_name, color=colors[i % len(colors)])
+               label=label, color=colors[i % len(colors)], alpha=0.8)
     
     ax.set_xlabel('Layer', fontsize=12)
-    ax.set_ylabel('Clipping Bound', fontsize=12)
+    ax.set_ylabel('Clipping Bound (C_l)', fontsize=12)
     ax.set_title('Per-Layer Clipping Bounds by Strategy', fontsize=14, fontweight='bold')
     ax.set_xticks(x)
-    ax.set_xticklabels([l.replace('block_', 'B') for l in sorted_layers], 
-                       rotation=45, ha='right', fontsize=9)
-    ax.legend(loc='upper right', fontsize=9)
+    ax.set_xticklabels([l.replace('block_', 'B').replace('other', 'Other') for l in sorted_layers], 
+                       rotation=45, ha='right', fontsize=10)
+    ax.legend(loc='upper right', fontsize=9, title='Strategy')
+    ax.grid(axis='y', alpha=0.3)
     
     plt.tight_layout()
-    filepath = output_path / f"allocation_bounds_{timestamp}.png"
+    filepath = output_path / f"allocation_bounds_bar_{timestamp}.png"
     plt.savefig(filepath, dpi=150, bbox_inches='tight')
     plt.close()
     saved_files.append(str(filepath))
+    
+    # 2. Plot clipping bounds as line chart (trend visualization)
+    fig, ax = plt.subplots(figsize=(12, 6))
+    
+    for i, results in enumerate(results_with_alloc):
+        alloc = results.allocation_metrics
+        bounds = [alloc.layer_clipping_bounds.get(l, 0) for l in sorted_layers]
+        label = results.strategy_name or results.experiment_name
+        ax.plot(x, bounds, marker='o', linewidth=2, markersize=8,
+                label=label, color=colors[i % len(colors)])
+    
+    ax.set_xlabel('Layer', fontsize=12)
+    ax.set_ylabel('Clipping Bound (C_l)', fontsize=12)
+    ax.set_title('Per-Layer Clipping Bounds: Strategy Comparison', fontsize=14, fontweight='bold')
+    ax.set_xticks(x)
+    ax.set_xticklabels([l.replace('block_', 'B').replace('other', 'Other') for l in sorted_layers], 
+                       rotation=45, ha='right', fontsize=10)
+    ax.legend(loc='best', fontsize=9, title='Strategy')
+    ax.grid(True, alpha=0.3)
+    
+    # Add annotation for uniform strategy reference
+    if sorted_layers:
+        uniform_bound = 1.0 / np.sqrt(len(sorted_layers))
+        ax.axhline(y=uniform_bound, color='gray', linestyle='--', alpha=0.5, 
+                   label=f'Uniform ref: {uniform_bound:.3f}')
+    
+    plt.tight_layout()
+    filepath = output_path / f"allocation_bounds_line_{timestamp}.png"
+    plt.savefig(filepath, dpi=150, bbox_inches='tight')
+    plt.close()
+    saved_files.append(str(filepath))
+    
+    # 3. Allocation ratios comparison (normalized view)
+    fig, ax = plt.subplots(figsize=(14, 6))
+    
+    for i, results in enumerate(results_with_alloc):
+        alloc = results.allocation_metrics
+        ratios = [alloc.allocation_ratios.get(l, 0) for l in sorted_layers]
+        label = results.strategy_name or results.experiment_name
+        ax.plot(x, ratios, marker='s', linewidth=2, markersize=7,
+                label=label, color=colors[i % len(colors)])
+    
+    ax.set_xlabel('Layer', fontsize=12)
+    ax.set_ylabel('Allocation Ratio (α_l)', fontsize=12)
+    ax.set_title('Normalized Allocation Ratios by Strategy', fontsize=14, fontweight='bold')
+    ax.set_xticks(x)
+    ax.set_xticklabels([l.replace('block_', 'B').replace('other', 'Other') for l in sorted_layers], 
+                       rotation=45, ha='right', fontsize=10)
+    ax.legend(loc='best', fontsize=9, title='Strategy')
+    ax.grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    filepath = output_path / f"allocation_ratios_{timestamp}.png"
+    plt.savefig(filepath, dpi=150, bbox_inches='tight')
+    plt.close()
+    saved_files.append(str(filepath))
+    
+    return saved_files
+
+
+def plot_utility_privacy_tradeoff(
+    results_list: List[ExperimentResult],
+    output_dir: str,
+    timestamp: str = "",
+) -> List[str]:
+    """
+    Generate utility-privacy trade-off plots.
+    
+    Creates:
+    - Accuracy vs Privacy Budget scatter plot
+    - Utility gap from non-DP baseline bar chart
+    
+    Args:
+        results_list: List of experiment results
+        output_dir: Directory to save plots
+        timestamp: Timestamp string for filenames
+        
+    Returns:
+        List of saved plot filepaths
+    """
+    _ensure_matplotlib()
+    
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    saved_files = []
+    colors = plt.cm.tab10.colors
+    
+    # Separate DP and non-DP results
+    dp_results = [r for r in results_list if r.final_epsilon > 0]
+    non_dp_results = [r for r in results_list if r.final_epsilon == 0 or r.experiment_type == 'no_dp']
+    
+    # Get baseline accuracy (non-DP)
+    baseline_accuracy = max([r.final_eval_accuracy for r in non_dp_results], default=100.0)
+    
+    if dp_results:
+        # 1. Utility Gap Bar Chart (difference from baseline)
+        fig, ax = plt.subplots(figsize=(12, 6))
+        
+        names = []
+        gaps = []
+        accuracies = []
+        
+        for r in dp_results:
+            names.append(r.strategy_name or r.experiment_name)
+            gap = baseline_accuracy - r.final_eval_accuracy
+            gaps.append(gap)
+            accuracies.append(r.final_eval_accuracy)
+        
+        x = np.arange(len(names))
+        bars = ax.bar(x, gaps, color=[colors[i % len(colors)] for i in range(len(names))], 
+                      alpha=0.8, edgecolor='black', linewidth=1)
+        
+        ax.set_xlabel('Strategy', fontsize=12)
+        ax.set_ylabel('Accuracy Gap from Baseline (%)', fontsize=12)
+        ax.set_title(f'Utility Gap: Accuracy Loss vs Non-DP Baseline ({baseline_accuracy:.1f}%)', 
+                     fontsize=14, fontweight='bold')
+        ax.set_xticks(x)
+        ax.set_xticklabels(names, rotation=30, ha='right', fontsize=10)
+        ax.grid(axis='y', alpha=0.3)
+        
+        # Add value labels on bars
+        for bar, gap, acc in zip(bars, gaps, accuracies):
+            ax.annotate(f'-{gap:.1f}%\n({acc:.1f}%)', 
+                       xy=(bar.get_x() + bar.get_width()/2, bar.get_height()),
+                       ha='center', va='bottom', fontsize=9, fontweight='bold')
+        
+        # Add baseline reference line at 0
+        ax.axhline(y=0, color='green', linestyle='--', linewidth=2, label='Baseline (No DP)')
+        ax.legend(loc='upper right')
+        
+        plt.tight_layout()
+        filepath = output_path / f"utility_gap_{timestamp}.png"
+        plt.savefig(filepath, dpi=150, bbox_inches='tight')
+        plt.close()
+        saved_files.append(str(filepath))
+        
+        # 2. Strategy Comparison Radar/Spider Chart (if enough metrics)
+        fig, ax = plt.subplots(figsize=(10, 8))
+        
+        # Compare strategies on multiple dimensions
+        metrics_to_compare = ['final_eval_accuracy', 'final_train_accuracy']
+        
+        strategy_data = {}
+        for r in dp_results:
+            name = r.strategy_name or r.experiment_name
+            strategy_data[name] = {
+                'Eval Accuracy': r.final_eval_accuracy,
+                'Train Accuracy': r.final_train_accuracy,
+                'Training Time': r.total_training_time_seconds,
+            }
+        
+        # Simple grouped bar for comparison
+        metrics = list(list(strategy_data.values())[0].keys())
+        x = np.arange(len(metrics))
+        width = 0.8 / len(strategy_data)
+        
+        for i, (strategy, data) in enumerate(strategy_data.items()):
+            values = [data[m] for m in metrics]
+            # Normalize time (invert so lower is better, scale to 0-100)
+            if 'Training Time' in metrics:
+                max_time = max(d['Training Time'] for d in strategy_data.values())
+                time_idx = metrics.index('Training Time')
+                values[time_idx] = 100 * (1 - values[time_idx] / max_time) if max_time > 0 else 100
+            
+            offset = (i - len(strategy_data)/2 + 0.5) * width
+            ax.bar(x + offset, values, width, label=strategy, 
+                   color=colors[i % len(colors)], alpha=0.8)
+        
+        ax.set_xlabel('Metric', fontsize=12)
+        ax.set_ylabel('Value (% or normalized)', fontsize=12)
+        ax.set_title('Strategy Comparison Across Metrics', fontsize=14, fontweight='bold')
+        ax.set_xticks(x)
+        ax.set_xticklabels(metrics, fontsize=10)
+        ax.legend(loc='best', fontsize=9, title='Strategy')
+        ax.grid(axis='y', alpha=0.3)
+        ax.set_ylim([0, 105])
+        
+        plt.tight_layout()
+        filepath = output_path / f"strategy_comparison_{timestamp}.png"
+        plt.savefig(filepath, dpi=150, bbox_inches='tight')
+        plt.close()
+        saved_files.append(str(filepath))
     
     return saved_files
 
@@ -879,16 +1065,22 @@ def generate_all_plots(
     saved_files = []
     
     try:
-        # Training curves
+        # Training curves (accuracy, loss, privacy over epochs)
         files = plot_training_curves(results_list, output_dir, timestamp)
         saved_files.extend(files)
         
-        # Allocation comparison
+        # Allocation comparison (per-layer clipping bounds)
         files = plot_allocation_comparison(results_list, output_dir, timestamp)
+        saved_files.extend(files)
+        
+        # Utility-privacy trade-off plots
+        files = plot_utility_privacy_tradeoff(results_list, output_dir, timestamp)
         saved_files.extend(files)
         
     except Exception as e:
         print(f"  [Warning] Error generating plots: {e}")
+        import traceback
+        traceback.print_exc()
     
     return saved_files
 

@@ -1,0 +1,157 @@
+{
+  "no_dp_lora": {
+    "experiment_type": "no_dp",
+    "strategy_name": "none",
+    "final_eval_accuracy": 81.4,
+    "final_train_accuracy": 67.6,
+    "final_epsilon": 0.0,
+    "total_time_seconds": 46.56126809120178,
+    "peak_memory_mb": 0.0,
+    "trainable_params": 667396,
+    "lora_enabled": true,
+    "training_curves": {
+      "epochs": [
+        0
+      ],
+      "train_loss": [
+        0.8064175029285252
+      ],
+      "train_accuracy": [
+        67.6
+      ],
+      "eval_accuracy": [
+        81.4
+      ],
+      "epsilon": [
+        0.0
+      ],
+      "epoch_time": [
+        46.558680057525635
+      ]
+    }
+  },
+  "dp_uniform_lora": {
+    "experiment_type": "dp",
+    "strategy_name": "uniform",
+    "final_eval_accuracy": 25.4,
+    "final_train_accuracy": 46.951219512195124,
+    "final_epsilon": 0.5055686229775292,
+    "total_time_seconds": 54.83894491195679,
+    "peak_memory_mb": 0.0,
+    "trainable_params": 667396,
+    "lora_enabled": true,
+    "training_curves": {
+      "epochs": [
+        0
+      ],
+      "train_loss": [
+        1.3182071819901466
+      ],
+      "train_accuracy": [
+        46.951219512195124
+      ],
+      "eval_accuracy": [
+        25.4
+      ],
+      "epsilon": [
+        0.5055686229775292
+      ],
+      "epoch_time": [
+        54.57912802696228
+      ]
+    }
+  },
+  "dp_gradient_norm_lora": {
+    "experiment_type": "dp",
+    "strategy_name": "gradient_norm_private",
+    "final_eval_accuracy": 25.4,
+    "final_train_accuracy": 47.57665677546983,
+    "final_epsilon": 0.5055686229775292,
+    "total_time_seconds": 51.912153005599976,
+    "peak_memory_mb": 0.0,
+    "trainable_params": 667396,
+    "lora_enabled": true,
+    "training_curves": {
+      "epochs": [
+        0
+      ],
+      "train_loss": [
+        1.3033576384186745
+      ],
+      "train_accuracy": [
+        47.57665677546983
+      ],
+      "eval_accuracy": [
+        25.4
+      ],
+      "epsilon": [
+        0.5055686229775292
+      ],
+      "epoch_time": [
+        49.74867916107178
+      ]
+    }
+  },
+  "dp_cube_root_gradient_norm_lora": {
+    "experiment_type": "dp",
+    "strategy_name": "cube_root_gradient_norm_private",
+    "final_eval_accuracy": 25.4,
+    "final_train_accuracy": 46.048780487804876,
+    "final_epsilon": 0.5055686229775292,
+    "total_time_seconds": 55.61766290664673,
+    "peak_memory_mb": 0.0,
+    "trainable_params": 667396,
+    "lora_enabled": true,
+    "training_curves": {
+      "epochs": [
+        0
+      ],
+      "train_loss": [
+        1.3120084516704082
+      ],
+      "train_accuracy": [
+        46.048780487804876
+      ],
+      "eval_accuracy": [
+        25.4
+      ],
+      "epsilon": [
+        0.5055686229775292
+      ],
+      "epoch_time": [
+        52.09433031082153
+      ]
+    }
+  },
+  "dp_depth_linear_increasing_lora": {
+    "experiment_type": "dp",
+    "strategy_name": "depth_linear_increasing",
+    "final_eval_accuracy": 25.4,
+    "final_train_accuracy": 46.951219512195124,
+    "final_epsilon": 0.5055686229775292,
+    "total_time_seconds": 48.04707098007202,
+    "peak_memory_mb": 0.0,
+    "trainable_params": 667396,
+    "lora_enabled": true,
+    "training_curves": {
+      "epochs": [
+        0
+      ],
+      "train_loss": [
+        1.3182071819901466
+      ],
+      "train_accuracy": [
+        46.951219512195124
+      ],
+      "eval_accuracy": [
+        25.4
+      ],
+      "epsilon": [
+        0.5055686229775292
+      ],
+      "epoch_time": [
+        47.77833008766174
+      ]
+    }
+  }
+}

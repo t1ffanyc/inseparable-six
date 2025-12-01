@@ -1,0 +1,217 @@
+{
+  "no_dp_lora": {
+    "experiment_type": "no_dp",
+    "strategy_name": "none",
+    "final_eval_accuracy": 100.0,
+    "final_train_accuracy": 100.0,
+    "final_epsilon": 0.0,
+    "total_time_seconds": 210.7119219303131,
+    "peak_memory_mb": 0.0,
+    "trainable_params": 665858,
+    "lora_enabled": true,
+    "training_curves": {
+      "epochs": [
+        0,
+        1,
+        2
+      ],
+      "train_loss": [
+        0.039142382237776864,
+        0.0,
+        0.0
+      ],
+      "train_accuracy": [
+        97.625,
+        100.0,
+        100.0
+      ],
+      "eval_accuracy": [
+        100.0,
+        100.0,
+        100.0
+      ],
+      "epsilon": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "epoch_time": [
+        74.87254691123962,
+        69.98968410491943,
+        65.84398603439331
+      ]
+    }
+  },
+  "dp_uniform_lora": {
+    "experiment_type": "dp",
+    "strategy_name": "uniform",
+    "final_eval_accuracy": 100.0,
+    "final_train_accuracy": 100.0,
+    "final_epsilon": 2.99324622803788,
+    "total_time_seconds": 232.31658387184143,
+    "peak_memory_mb": 0.0,
+    "trainable_params": 665858,
+    "lora_enabled": true,
+    "training_curves": {
+      "epochs": [
+        0,
+        1,
+        2
+      ],
+      "train_loss": [
+        0.1469179328903556,
+        0.002070636972784996,
+        0.0009952550730668009
+      ],
+      "train_accuracy": [
+        97.42599742599742,
+        100.0,
+        100.0
+      ],
+      "eval_accuracy": [
+        100.0,
+        100.0,
+        100.0
+      ],
+      "epsilon": [
+        2.075938207462714,
+        2.5818887652300297,
+        2.99324622803788
+      ],
+      "epoch_time": [
+        75.39801812171936,
+        77.6933913230896,
+        77.89533805847168
+      ]
+    }
+  },
+  "dp_gradient_norm_lora": {
+    "experiment_type": "dp",
+    "strategy_name": "gradient_norm_private",
+    "final_eval_accuracy": 100.0,
+    "final_train_accuracy": 100.0,
+    "final_epsilon": 2.99324622803788,
+    "total_time_seconds": 246.5369532108307,
+    "peak_memory_mb": 0.0,
+    "trainable_params": 665858,
+    "lora_enabled": true,
+    "training_curves": {
+      "epochs": [
+        0,
+        1,
+        2
+      ],
+      "train_loss": [
+        0.14167322136461735,
+        0.002046477305702865,
+        0.0010807008785195648
+      ],
+      "train_accuracy": [
+        97.1830985915493,
+        100.0,
+        100.0
+      ],
+      "eval_accuracy": [
+        100.0,
+        100.0,
+        100.0
+      ],
+      "epsilon": [
+        2.075938207462714,
+        2.5818887652300297,
+        2.99324622803788
+      ],
+      "epoch_time": [
+        86.81746792793274,
+        76.73082327842712,
+        78.41455006599426
+      ]
+    }
+  },
+  "dp_cube_root_gradient_norm_lora": {
+    "experiment_type": "dp",
+    "strategy_name": "cube_root_gradient_norm_private",
+    "final_eval_accuracy": 100.0,
+    "final_train_accuracy": 100.0,
+    "final_epsilon": 2.99324622803788,
+    "total_time_seconds": 251.3704948425293,
+    "peak_memory_mb": 0.0,
+    "trainable_params": 665858,
+    "lora_enabled": true,
+    "training_curves": {
+      "epochs": [
+        0,
+        1,
+        2
+      ],
+      "train_loss": [
+        0.1362108431570232,
+        0.002051753792911768,
+        0.0010321857058443128
+      ],
+      "train_accuracy": [
+        97.32484076433121,
+        100.0,
+        100.0
+      ],
+      "eval_accuracy": [
+        100.0,
+        100.0,
+        100.0
+      ],
+      "epsilon": [
+        2.075938207462714,
+        2.5818887652300297,
+        2.99324622803788
+      ],
+      "epoch_time": [
+        84.82813477516174,
+        80.18576407432556,
+        77.83927488327026
+      ]
+    }
+  },
+  "dp_depth_linear_increasing_lora": {
+    "experiment_type": "dp",
+    "strategy_name": "depth_linear_increasing",
+    "final_eval_accuracy": 100.0,
+    "final_train_accuracy": 100.0,
+    "final_epsilon": 2.99324622803788,
+    "total_time_seconds": 237.45118808746338,
+    "peak_memory_mb": 0.0,
+    "trainable_params": 665858,
+    "lora_enabled": true,
+    "training_curves": {
+      "epochs": [
+        0,
+        1,
+        2
+      ],
+      "train_loss": [
+        0.1469179328903556,
+        0.002070636972784996,
+        0.0009952550730668009
+      ],
+      "train_accuracy": [
+        97.42599742599742,
+        100.0,
+        100.0
+      ],
+      "eval_accuracy": [
+        100.0,
+        100.0,
+        100.0
+      ],
+      "epsilon": [
+        2.075938207462714,
+        2.5818887652300297,
+        2.99324622803788
+      ],
+      "epoch_time": [
+        79.54299592971802,
+        78.19306492805481,
+        78.34977507591248
+      ]
+    }
+  }
+}
