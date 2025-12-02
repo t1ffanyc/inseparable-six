@@ -355,7 +355,11 @@ def train_epoch(
         # Get current epsilon if DP
         epsilon = None
         if privacy_engine is not None:
-            epsilon = privacy_engine.get_epsilon(target_delta)
+            try:
+                epsilon = privacy_engine.get_epsilon(target_delta)
+            except Exception as e:
+                # RDP accounting can fail in edge cases, just skip epsilon logging
+                pass
         
         metrics_collector.log_step(
             step=step,
@@ -546,7 +550,10 @@ def run_dp_experiment(
         )
         eval_loss, eval_acc = evaluate(model, test_loader, config.device)
         
-        epsilon = privacy_engine.accountant.get_epsilon(delta=target_delta)
+        try:
+            epsilon = privacy_engine.accountant.get_epsilon(delta=target_delta)
+        except Exception:
+            epsilon = float('nan')
         
         collector.end_epoch(
             train_loss=train_loss,

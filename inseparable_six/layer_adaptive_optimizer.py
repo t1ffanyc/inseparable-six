@@ -631,9 +631,12 @@ class LayerAdaptiveDPTrainer:
         
         avg_loss = total_loss / len(self.train_loader)
         accuracy = 100 * correct / total
-        epsilon = self.privacy_engine.accountant.get_epsilon(
-            delta=self.config.privacy.target_delta
-        )
+        try:
+            epsilon = self.privacy_engine.accountant.get_epsilon(
+                delta=self.config.privacy.target_delta
+            )
+        except Exception:
+            epsilon = float('nan')
         
         return {
             'loss': avg_loss,
@@ -693,15 +696,21 @@ class LayerAdaptiveDPTrainer:
             print(f"\nEpoch {epoch + 1}:")
             print(f"  Train Loss: {metrics['loss']:.4f}, Acc: {metrics['accuracy']:.2f}%")
             print(f"  Eval Acc: {eval_acc:.2f}%")
-            print(f"  Epsilon: {metrics['epsilon']:.2f}")
+            print(f"  Epsilon: {metrics['epsilon']:.2f}" if not (metrics['epsilon'] != metrics['epsilon']) else "  Epsilon: N/A")
         
-        final_eps = self.privacy_engine.accountant.get_epsilon(
-            delta=self.config.privacy.target_delta
-        )
+        try:
+            final_eps = self.privacy_engine.accountant.get_epsilon(
+                delta=self.config.privacy.target_delta
+            )
+        except Exception:
+            final_eps = float('nan')
         
         print("\n" + "=" * 60)
         print("Training Complete")
-        print(f"Final (ε={final_eps:.2f}, δ={self.config.privacy.target_delta:.2e})")
+        if final_eps == final_eps:  # Check for NaN
+            print(f"Final (ε={final_eps:.2f}, δ={self.config.privacy.target_delta:.2e})")
+        else:
+            print(f"Final (ε=N/A, δ={self.config.privacy.target_delta:.2e})")
         print("=" * 60)
         
         return self.metrics_collector.finalize()
